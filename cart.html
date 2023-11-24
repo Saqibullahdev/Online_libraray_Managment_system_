@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>Cart</title>
+    <style>
+      #cartContainer {
+        width: 100%;
+        margin-top: 3rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+       
+       
+      }
+      @media screen and (min-width: 300px) and (max-width: 1024px) {
+        .main-sec{
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 1rem;
+        
+        }
+        .cart-item{
+          width: 80%;
+        }
+
+        .totalpriceofitem{
+          width: 30%;
+        }
+      }
+      
+
+      .cart-item {
+       
+        width: 30%;
+        box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+        margin: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      
+      .btn-group{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      #totalpriceofitem{
+        width: 80%;
+        margin-top: 4rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+       
+       
+      }
+    </style>
+</head>
+<body >
+  <div class="d-flex bg-warning py-3 justify-content-around align-content-center ">
+    <h1>Your Cart</h1>
+   <div> <a href="index.html" class="btn btn-dark">Goto Home Page</a></div>
+  </div>
+
+  <section class="d-flex justify-content-between align-content-center main-sec">
+
+   
+  <div id="totalpriceofitem">  
+    
+  </div>
+    <div id="cartContainer">
+
+    </div>
+  </section>
+  
+  
+    <script >
+        function calculateTotalPrice() {
+            // Retrieve cart items from localStorage
+            const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+          
+            // Calculate the total price considering quantity
+            let totalPrice = cartItems.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0);
+              totalPrice=totalPrice.toFixed(2);
+            // Return the total price
+             return totalPrice
+          }
+        function calculateItemTotalPrice(item) {
+            return (item.price || 0) * (item.quantity || 1);
+          }
+
+          function calculateAnddisplayTotal(){
+            let totalpriceofitem=document.getElementById('totalpriceofitem');
+            totalpriceofitem.innerHTML='';
+            const totalprice=document.createElement('h3');
+           totalprice.textContent=`Total Price: $${calculateTotalPrice()}`;
+           totalpriceofitem.append(totalprice);
+           let button=document.createElement('a');
+            button.textContent='Checkout';
+            button.classList.add('btn','btn-warning');
+            button.setAttribute('href','checkout.html');
+            button.textContent='Checkout';
+            totalpriceofitem.append(button);
+          }
+        function displayCart() {
+            // Retrieve cart items from localStorage
+            const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+        
+            // Get the container element
+            const cartContainer = document.getElementById('cartContainer');
+        
+            // Clear previous content
+            cartContainer.innerHTML = '';
+        
+            // Display each item in the cart
+            cartItems.forEach(item => {
+              // Create a div for each item
+              const itemDiv = document.createElement('div');
+              itemDiv.classList.add('cart-item');
+
+              const img=document.createElement('img');
+              img.setAttribute('src','https://img.lovepik.com/free-png/20210928/lovepik-mobile-phone-png-image_401663651_wh1200.png');
+              img.setAttribute('width','30%');
+              img.setAttribute('height','30%');
+              // Display item details (title, price, quantity)
+              const titleElement = document.createElement('h3');
+              titleElement.textContent = `Title: ${item.title}`;
+             
+
+
+              const tprice=document.createElement('h4');
+                tprice.textContent=`Total Price: ${calculateItemTotalPrice(item)}.`;
+        
+              const priceElement = document.createElement('h4');
+              priceElement.textContent = `Price: $${item.price}`;
+        
+              const quantityElement = document.createElement('h5');
+              quantityElement.textContent = `Quantity: ${item.quantity || 1}`;
+        
+              // Create buttons for increment and decrement
+              const incrementButton = document.createElement('button');
+              const btndiv=document.createElement('div');
+              btndiv.classList.add('btn-group');
+              incrementButton.textContent = '+';
+              incrementButton.addEventListener('click', () => {
+                // Increment quantity and update localStorage
+                item.quantity = (item.quantity || 1) + 1;
+                localStorage.setItem('cart', JSON.stringify(cartItems));
+                // Update displayed quantity and total price
+                quantityElement.textContent = `Quantity: ${item.quantity}`;
+                priceElement.textContent = `Price: $${calculateItemTotalPrice(item)}`;
+                tprice.textContent=`Total Price: of ${item.quantity} Quantity $${calculateTotalPrice(item)}.`;
+                calculateAnddisplayTotal();
+              });
+        
+              const decrementButton = document.createElement('button');
+              decrementButton.textContent = '-';
+              decrementButton.addEventListener('click', () => {
+                // Decrement quantity, but not below 1, and update localStorage
+                item.quantity = Math.max((item.quantity || 1) - 1, 1);
+                localStorage.setItem('cart', JSON.stringify(cartItems));
+                // Update displayed quantity and total price
+                quantityElement.textContent = `Quantity: ${item.quantity}`;
+                priceElement.textContent = `Price: $${calculateItemTotalPrice(item)}`;
+                tprice.textContent=`Total Price:of ${item.quantity} $${calculateTotalPrice(item)}.`;
+                calculateAnddisplayTotal();
+              });
+              btndiv.append(incrementButton,decrementButton);
+              // Append elements to the item div
+              itemDiv.append(img, priceElement, quantityElement, btndiv,tprice);
+        
+              // Append the item div to the container
+              cartContainer.appendChild(itemDiv);
+             
+              
+            });
+
+            
+            calculateAnddisplayTotal();
+          }
+        window.onload=function(){
+
+          displayCart()
+          
+        }
+
+    </script>
+</body>
+</html>
